@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="zh-CN" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fireowl 的技术博客 | AD & Sim Lab</title>
+    <!-- 引入 TailwindCSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- 引入 FontAwesome 图标库 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- 配置 Tailwind 主题：调整为更具科技感的青色与紫色 -->
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#06b6d4', // Cyan 500 (雷达/激光感)
+                        secondary: '#8b5cf6', // Violet 500 (AI/深度学习感)
+                        dark: '#0f172a', // Slate 900
+                        card: '#1e293b', // Slate 800
+                    },
+                    animation: {
+                        'float': 'float 6s ease-in-out infinite',
+                        'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                        'spin-slow': 'spin 20s linear infinite',
+                    },
+                    keyframes: {
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-20px)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        /* 全局基础样式 */
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background-color: #0f172a;
+            color: #e2e8f0;
+        }
+        
+        /* 滚动条美化 */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0f172a; 
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #334155; 
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #475569; 
+        }
+
+        /* 渐变文字：青色到紫色，代表雷达波到算法 */
+        .text-gradient {
+            background: linear-gradient(to right, #06b6d4, #8b5cf6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* 玻璃拟态导航栏 */
+        .glass-nav {
+            background: rgba(15, 23, 42, 0.85);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        /* 卡片悬停效果：类似传感器扫描的微光 */
+        .blog-card {
+            transition: all 0.3s ease;
+        }
+        .blog-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 0 25px rgba(6, 182, 212, 0.15); /* 青色辉光 */
+            border-color: rgba(6, 182, 212, 0.3);
+        }
+
+        /* 打字机光标 */
+        .cursor-blink {
+            animation: blink 1s step-end infinite;
+        }
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0; }
+        }
+
+        /* 加载动画 */
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translate3d(0, 30px, 0); }
+            to { opacity: 1; transform: translate3d(0, 0, 0); }
+        }
+        .animate-fade-in-up {
+            animation: fadeInUp 0.6s ease-out forwards;
+        }
+    </style>
+</head>
+<body class="antialiased selection:bg-primary selection:text-white">
+
+    <!-- 导航栏 -->
+    <nav class="glass-nav fixed w-full z-50 transition-all duration-300" id="navbar">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <!-- Logo -->
+                <div class="flex-shrink-0 cursor-pointer group" onclick="window.scrollTo({top: 0, behavior: 'smooth'})">
+                    <span class="text-2xl font-bold tracking-tighter group-hover:text-primary transition-colors">Fireowl<span class="text-primary">.Sim</span></span>
+                </div>
+                
+                <!-- 桌面端菜单 -->
+                <div class="hidden md:block">
+                    <div class="ml-10 flex items-baseline space-x-8">
+                        <a href="#home" class="hover:text-primary transition-colors px-3 py-2 rounded-md text-sm font-medium">首页</a>
+                        <a href="#articles" class="hover:text-primary transition-colors px-3 py-2 rounded-md text-sm font-medium">技术文章</a>
+                        <a href="#projects" class="hover:text-primary transition-colors px-3 py-2 rounded-md text-sm font-medium">开源项目</a>
+                        <a href="#about" class="hover:text-primary transition-colors px-3 py-2 rounded-md text-sm font-medium">关于我</a>
+                    </div>
+                </div>
+
+                <!-- 移动端菜单按钮 -->
+                <div class="-mr-2 flex md:hidden">
+                    <button type="button" onclick="toggleMobileMenu()" class="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-white hover:bg-gray-700 focus:outline-none transition-colors">
+                        <i class="fas fa-bars text-xl"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 移动端菜单面板 -->
+        <div class="md:hidden hidden bg-card border-b border-gray-700 shadow-xl" id="mobile-menu">
+            <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+                <a href="#home" onclick="toggleMobileMenu()" class="text-gray-300 hover:text-white block px-3 py-2 rounded-md text-base font-medium">首页</a>
+                <a href="#articles" onclick="toggleMobileMenu()" class="text-gray-300 hover:text-white block px-3 py-2 rounded-md text-base font-medium">技术文章</a>
+                <a href="#projects" onclick="toggleMobileMenu()" class="text-gray-300 hover:text-white block px-3 py-2 rounded-md text-base font-medium">开源项目</a>
+                <a href="#about" onclick="toggleMobileMenu()" class="text-gray-300 hover:text-white block px-3 py-2 rounded-md text-base font-medium">关于我</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero 区域 -->
+    <section id="home" class="relative pt-32 pb-20 lg:pt-48 lg:pb-32 overflow-hidden">
+        <!-- 背景装饰：模拟雷达扫描波 -->
+        <div class="absolute top-0 left-0 w-full h-full overflow-hidden -z-10 pointer-events-none">
+            <div class="absolute top-0 right-0 w-[600px] h-[600px] bg-primary/10 rounded-full blur-[100px] -translate-y-1/2 translate-x-1/3 animate-pulse-slow"></div>
+            <div class="absolute bottom-0 left-0 w-[600px] h-[600px] bg-secondary/10 rounded-full blur-[100px] translate-y-1/3 -translate-x-1/3 animate-pulse-slow" style="animation-delay: 2s;"></div>
+            <!-- 网格背景 -->
+            <div class="absolute inset-0 opacity-10" style="background-image: linear-gradient(#334155 1px, transparent 1px), linear-gradient(90deg, #334155 1px, transparent 1px); background-size: 40px 40px;"></div>
+        </div>
+
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <div class="inline-block mb-6 px-4 py-1.5 rounded-full border border-primary/30 bg-primary/10 backdrop-blur-sm animate-fade-in-up">
+                <span class="text-sm text-primary font-medium"><i class="fas fa-robot mr-2"></i>专注于自动驾驶与机器人仿真</span>
+            </div>
+            
+            <h1 class="text-5xl md:text-7xl font-extrabold tracking-tight mb-6 animate-fade-in-up" style="animation-delay: 0.1s;">
+                在 <span class="text-gradient">虚拟世界</span> 测试未来<br>
+                验证 <span class="text-gradient" id="typewriter">智能边界</span><span class="cursor-blink">|</span>
+            </h1>
+            
+            <p class="mt-4 max-w-2xl mx-auto text-xl text-gray-400 mb-10 animate-fade-in-up" style="animation-delay: 0.2s;">
+                我是 Fireowl，一名仿真工程师。致力于通过高保真仿真、强化学习与传感器模拟，加速自动驾驶算法的安全落地。
+            </p>
+            
+            <div class="flex justify-center gap-4 animate-fade-in-up" style="animation-delay: 0.3s;">
+                <a href="#articles" class="bg-primary text-white px-8 py-3.5 rounded-full font-bold hover:bg-cyan-600 transition-transform hover:-translate-y-1 shadow-lg shadow-cyan-500/30">
+                    阅读技术文章
+                </a>
+                <a href="#projects" class="border border-gray-600 text-white px-8 py-3.5 rounded-full font-bold hover:border-secondary hover:text-secondary transition-all hover:bg-gray-800/50">
+                    查看仿真项目
+                </a>
+            </div>
+
+            <!-- 向下滚动提示 -->
+            <div class="absolute bottom-10 left-1/2 transform -translate-x-1/2 animate-bounce text-gray-500 cursor-pointer" onclick="document.getElementById('articles').scrollIntoView({behavior: 'smooth'})">
+                <i class="fas fa-chevron-down text-2xl"></i>
+            </div>
+        </div>
+    </section>
+
+    <!-- 文章列表区域 -->
+    <section id="articles" class="py-20 bg-card/30">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex flex-col md:flex-row justify-between items-end mb-12 gap-4">
+                <div>
+                    <h2 class="text-3xl font-bold mb-2">技术笔记</h2>
+                    <div class="h-1 w-20 bg-primary rounded shadow-[0_0_10px_rgba(6,182,212,0.5)]"></div>
+                </div>
+                <!-- 分类筛选器 -->
+                <div class="flex gap-2 overflow-x-auto pb-2 scrollbar-hide" id="category-filters">
+                    <button class="filter-btn active px-4 py-1.5 rounded-full text-sm bg-primary text-white transition-all shadow-lg shadow-cyan-500/20" data-filter="all">全部</button>
+                    <button class="filter-btn px-4 py-1.5 rounded-full text-sm bg-gray-800 text-gray-300 border border-gray-700 hover:border-primary hover:text-primary transition-all" data-filter="sim">仿真器开发</button>
+                    <button class="filter-btn px-4 py-1.5 rounded-full text-sm bg-gray-800 text-gray-300 border border-gray-700 hover:border-secondary hover:text-secondary transition-all" data-filter="perception">感知算法</button>
+                    <button class="filter-btn px-4 py-1.5 rounded-full text-sm bg-gray-800 text-gray-300 border border-gray-700 hover:text-green-400 hover:border-green-400 transition-all" data-filter="planning">决策规划</button>
+                </div>
+            </div>
+
+            <!-- 文章网格 -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8" id="articles-grid">
+                <!-- 文章卡片将由 JS 动态生成 -->
+            </div>
+            
+            <div class="mt-16 text-center">
+                <button id="load-more-btn" class="group relative px-6 py-3 font-bold text-white transition-all duration-200 bg-gray-800 font-lg rounded-full hover:bg-gray-700 focus:outline-none ring-offset-2 focus:ring-2 ring-gray-400">
+                    <span class="absolute top-0 left-0 w-full h-full -mt-1 rounded-lg opacity-30 bg-gradient-to-b from-transparent via-transparent to-gray-700"></span>
+                    <span class="relative flex items-center gap-2">
+                        加载更多文章 <i class="fas fa-arrow-down transform group-hover:translate-y-1 transition-transform"></i>
+                    </span>
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- 项目展示区域 -->
+    <section id="projects" class="py-20 relative">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <h2 class="text-3xl md:text-4xl font-bold mb-4">精选项目</h2>
+                <p class="text-gray-400 max-w-2xl mx-auto">
+                    利用开源工具构建的高保真仿真环境与自动化测试管线。
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <!-- 项目 1 -->
+                <div class="group relative bg-card rounded-xl overflow-hidden border border-gray-700 hover:border-primary transition-all duration-300 flex flex-col md:flex-row">
+                    <div class="md:w-2/5 h-48 md:h-auto bg-gray-800 relative overflow-hidden">
+                        <div class="absolute inset-0 bg-gradient-to-br from-cyan-500 to-blue-600 opacity-80 group-hover:scale-110 transition-transform duration-500"></div>
+                        <div class="absolute inset-0 flex items-center justify-center">
+                            <i class="fas fa-city text-5xl text-white opacity-50 group-hover:opacity-80 transition-opacity"></i>
+                        </div>
+                    </div>
+                    <div class="p-6 md:w-3/5 flex flex-col justify-center">
+                        <div class="flex justify-between items-center mb-2">
+                            <h3 class="text-xl font-bold group-hover:text-primary transition-colors">CitySim Scenario Gen</h3>
+                            <a href="#" class="text-gray-400 hover:text-white transition-transform hover:rotate-12"><i class="fab fa-github text-xl"></i></a>
+                        </div>
+                        <p class="text-gray-400 text-sm mb-4 line-clamp-2">
+                            基于 Python 和 SUMO 的城市交通场景生成器。支持通过配置文件一键生成复杂的路口博弈、行人横穿等 Corner Case 场景。
+                        </p>
+                        <div class="flex flex-wrap gap-2">
+                            <span class="px-2 py-1 text-xs rounded bg-gray-700 text-cyan-300 border border-gray-600">Python</span>
+                            <span class="px-2 py-1 text-xs rounded bg-gray-700 text-blue-300 border border-gray-600">SUMO</span>
+                            <span class="px-2 py-1 text-xs rounded bg-gray-700 text-gray-300 border border-gray-600">OpenScenario</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 项目 2 -->
+                <div class="group relative bg-card rounded-xl overflow-hidden border border-gray-700 hover:border-secondary transition-all duration-300 flex flex-col md:flex-row">
+                    <div class="md:w-2/5 h-48 md:h-auto bg-gray-800 relative overflow-hidden">
+                         <div class="absolute inset-0 bg-gradient-to-br from-violet-500 to-purple-600 opacity-80 group-hover:scale-110 transition-transform duration-500"></div>
+                         <div class="absolute inset-0 flex items-center justify-center">
+                             <i class="fas fa-network-wired text-5xl text-white opacity-50 group-hover:opacity-80 transition-opacity"></i>
+                         </div>
+                    </div>
+                    <div class="p-6 md:w-3/5 flex flex-col justify-center">
+                        <div class="flex justify-between items-center mb-2">
+                            <h3 class="text-xl font-bold group-hover:text-secondary transition-colors">Sim-to-Real Sensor</h3>
+                            <a href="#" class="text-gray-400 hover:text-white transition-transform hover:rotate-12"><i class="fas fa-external-link-alt text-xl"></i></a>
+                        </div>
+                        <p class="text-gray-400 text-sm mb-4 line-clamp-2">
+                            基于 Unreal Engine 5 的 LiDAR 传感器模拟插件。引入了真实的雨雾噪声模型，显著提升了仿真数据在真实世界的泛化能力。
+                        </p>
+                        <div class="flex flex-wrap gap-2">
+                            <span class="px-2 py-1 text-xs rounded bg-gray-700 text-violet-300 border border-gray-600">Unreal 5</span>
+                            <span class="px-2 py-1 text-xs rounded bg-gray-700 text-pink-300 border border-gray-600">C++</span>
+                            <span class="px-2 py-1 text-xs rounded bg-gray-700 text-gray-300 border border-gray-600">ROS2</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 关于我 -->
+    <section id="about" class="py-20 bg-card/20">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex flex-col lg:flex-row items-center gap-16">
+                <!-- 头像区域 -->
+                <div class="w-full lg:w-1/3 flex justify-center lg:justify-end">
+                    <div class="relative w-64 h-64 md:w-80 md:h-80">
+                        <div class="absolute inset-0 bg-gradient-to-tr from-primary to-secondary rounded-full animate-pulse-slow blur-md opacity-60"></div>
+                        <div class="absolute inset-0 border-2 border-white/10 rounded-full animate-spin-slow border-t-transparent"></div>
+                        <!-- 随机种子 -->
+                        <img src="https://picsum.photos/seed/robotics/400/400.jpg" alt="Fireowl Avatar" class="relative w-full h-full object-cover rounded-full border-4 border-card shadow-2xl">
+                    </div>
+                </div>
+
+                <!-- 文本内容 -->
+                <div class="w-full lg:w-2/3 text-center lg:text-left">
+                    <h2 class="text-3xl md:text-4xl font-bold mb-6">关于 <span class="text-gradient">Fireowl</span></h2>
+                    <p class="text-lg text-gray-300 mb-6 leading-relaxed">
+                        你好！我是一名专注于自动驾驶仿真系统的研发工程师。我热衷于在比特世界里构建原子级的物理法则，让智能机器人在上线前经历成千上万次的“虚拟死亡”，从而在现实中安全运行。
+                    </p>
+                    <p class="text-lg text-gray-300 mb-8 leading-relaxed">
+                        我的核心技能涵盖<strong>多传感器融合仿真、场景重建、强化学习训练环境搭建</strong>以及<strong>大规模云端仿真调度</strong>。
+                    </p>
+
+                    <div class="flex gap-4 justify-center lg:justify-start">
+                        <a href="#" class="w-10 h-10 rounded-full bg-card flex items-center justify-center text-gray-400 hover:bg-white hover:text-dark transition-all border border-gray-700 hover:border-transparent">
+                            <i class="fab fa-github"></i>
+                        </a>
+                        <a href="#" class="w-10 h-10 rounded-full bg-card flex items-center justify-center text-gray-400 hover:bg-[#0077b5] hover:text-white transition-all border border-gray-700 hover:border-transparent">
+                            <i class="fab fa-linkedin-in"></i>
+                        </a>
+                        <a href="#" class="w-10 h-10 rounded-full bg-card flex items-center justify-center text-gray-400 hover:bg-[#07c160] hover:text-white transition-all border border-gray-700 hover:border-transparent">
+                            <i class="fab fa-weixin"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 页脚 -->
+    <footer class="bg-dark py-12 border-t border-gray-800">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row justify-between items-center">
+            <div class="mb-4 md:mb-0 text-center md:text-left">
+                <span class="text-2xl font-bold tracking-tighter">Fireowl<span class="text-primary">.Sim</span></span>
+                <p class="text-gray-500 text-sm mt-2">© 2026 Fireowl. All rights reserved</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Toast 通知容器 -->
+    <div id="toast-container" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2"></div>
+
+    <!-- JavaScript 逻辑 -->
+    <script>
+        // --- 模拟文章数据 (仿真/自动驾驶方向) ---
+        const articles = [
+            {
+                id: 1,
+                title: "深入解析 CARLA 传感器噪声模型配置",
+                category: "sim",
+                date: "2023-10-15",
+                excerpt: "在仿真中，完美的传感器数据反而会降低算法在真实世界的鲁棒性。本文详细介绍如何在 CARLA 中配置 LiDAR 和 Camera 的物理噪声模型。",
+                image: "https://picsum.photos/seed/carla/600/400.jpg"
+            },
+            {
+                id: 2,
+                title: "ROS 2 Navigation 2 在狭窄通道中的调优实战",
+                category: "planning",
+                date: "2023-10-10",
+                excerpt: "面对仓储机器人常见的狭窄通道场景，默认的 Nav2 参数往往会导致抖动或卡死。分享代价地图与控制器参数的优化思路。",
+                image: "https://picsum.photos/seed/ros2/600/400.jpg"
+            },
+            {
+                id: 3,
+                title: "基于 Domain Randomization 的 Sim-to-Real 迁移策略",
+                category: "perception",
+                date: "2023-09-28",
+                excerpt: "如何让在虚拟环境中训练的感知模型直接用于真车？探讨纹理、光照和物理参数的随机化策略。",
+                image: "https://picsum.photos/seed/sim2real/600/400.jpg"
+            },
+            {
+                id: 4,
+                title: "Unreal Engine 5 利用 Nanite 构建超大规模城市场景",
+                category: "sim",
+                date: "2023-09-15",
+                excerpt: "利用 UE5 的 Nanite 和 Lumen 技术，以极低的性能开销构建厘米级精度的城市仿真环境。",
+                image: "https://picsum.photos/seed/ue5/600/400.jpg"
+            },
+            {
+                id: 5,
+                title: "激光雷达点云目标检测：CenterPoint vs PointPillars",
+                category: "perception",
+                date: "2023-09-05",
+                excerpt: "在自动驾驶场景中，对比当前最主流的两种 3D 检测算法的精度与速度，以及在仿真环境下的表现。",
+                image: "https://picsum.photos/seed/lidar/600/400.jpg"
+            },
+            {
+                id: 6,
+                title: "从零搭建云端大规模并行仿真测试平台",
+                category: "sim",
+                date: "2023-08-20",
+                excerpt: "基于 Kubernetes 和 Docker，实现每日百万公里的虚拟测试里程。架构设计与踩坑记录。",
+                image: "https://picsum.photos/seed/k8s/600/400.jpg"
+            }
+        ];
+
+        // --- 辅助函数：显示 Toast 通知 ---
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            
+            const bgColor = type === 'success' ? 'bg-cyan-600' : 'bg-red-600';
+            const icon = type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle';
+            
+            toast.className = `${bgColor} text-white px-6 py-3 rounded-lg shadow-lg flex items-center gap-3 transform translate-y-10 opacity-0 transition-all duration-300`;
+            toast.innerHTML = `<i class="fas ${icon}"></i> <span>${message}</span>`;
+            
+            container.appendChild(toast);
+            
+            requestAnimationFrame(() => {
+                toast.classList.remove('translate-y-10', 'opacity-0');
+            });
+            
+            setTimeout(() => {
+                toast.classList.add('opacity-0', 'translate-x-full');
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        // --- 渲染文章 ---
+        const articlesGrid = document.getElementById('articles-grid');
+
+        function renderArticles(filter = 'all') {
+            articlesGrid.innerHTML = '';
+            
+            const filtered = filter === 'all' 
+                ? articles 
+                : articles.filter(article => article.category === filter);
+
+            if (filtered.length === 0) {
+                articlesGrid.innerHTML = `<div class="col-span-full text-center py-10 text-gray-500 bg-gray-800/50 rounded-xl">暂无该分类文章</div>`;
+                return;
+            }
+
+            filtered.forEach((article, index) => {
+                const card = document.createElement('article');
+                card.className = `blog-card bg-card rounded-xl overflow-hidden border border-gray-700 flex flex-col h-full opacity-0 animate-fade-in-up`;
+                card.style.animationDelay = `${index * 0.1}s`;
+                
+                const categoryColors = {
+                    'sim': 'bg-cyan-500',
+                    'perception': 'bg-violet-500',
+                    'planning': 'bg-green-500'
+                };
+                const badgeColor = categoryColors[article.category] || 'bg-gray-500';
+
+                card.innerHTML = `
+                    <div class="h-48 overflow-hidden relative group flex-shrink-0">
+                        <img src="${article.image}" alt="${article.title}" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" loading="lazy">
+                        <div class="absolute inset-0 bg-black/20 group-hover:bg-transparent transition-colors"></div>
+                        <div class="absolute top-4 left-4">
+                            <span class="px-3 py-1 text-xs font-bold uppercase tracking-wider text-white ${badgeColor} rounded-full shadow-lg">
+                                ${getCategoryName(article.category)}
+                            </span>
+                        </div>
+                    </div>
+                    <div class="p-6 flex-1 flex flex-col">
+                        <div class="text-gray-500 text-sm mb-3 flex items-center gap-2">
+                            <i class="far fa-calendar-alt"></i> ${article.date}
+                        </div>
+                        <h3 class="text-xl font-bold mb-3 text-gray-100 hover:text-primary cursor-pointer transition-colors line-clamp-1">${article.title}</h3>
+                        <p class="text-gray-400 text-sm mb-6 line-clamp-3 flex-1">${article.excerpt}</p>
+                        <a href="#" class="inline-flex items-center text-primary hover:text-white transition-colors font-medium text-sm group/link">
+                            阅读全文 <i class="fas fa-arrow-right ml-2 text-xs transform group-hover/link:translate-x-1 transition-transform"></i>
+                        </a>
+                    </div>
+                `;
+                articlesGrid.appendChild(card);
+            });
+        }
+
+        // 辅助函数：获取分类中文名
+        function getCategoryName(key) {
+            const map = {
+                'sim': '仿真器开发',
+                'perception': '感知算法',
+                'planning': '决策规划'
+            };
+            return map[key] || key;
+        }
+
+        // --- 筛选交互 ---
+        const filterBtns = document.querySelectorAll('.filter-btn');
+        filterBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                filterBtns.forEach(b => {
+                    b.classList.remove('active', 'bg-primary', 'text-white', 'shadow-lg', 'border-transparent');
+                    b.classList.add('bg-gray-800', 'text-gray-300', 'border-gray-700');
+                });
+                btn.classList.remove('bg-gray-800', 'text-gray-300', 'border-gray-700');
+                btn.classList.add('active', 'bg-primary', 'text-white', 'shadow-lg', 'border-transparent');
+                
+                renderArticles(btn.dataset.filter);
+            });
+        });
+
+        // --- 打字机效果 ---
+        const words = ["智能边界", "感知极限", "决策逻辑", "安全基石"];
+        let i = 0;
+
+        function typeWriter() {
+            const span = document.getElementById('typewriter');
+            const word = words[i];
+            const isDeleting = span.getAttribute('data-deleting') === 'true';
+            
+            let currentText = span.textContent;
+            
+            if (isDeleting) {
+                span.textContent = word.substring(0, currentText.length - 1);
+                if (currentText.length === 0) {
+                    span.setAttribute('data-deleting', 'false');
+                    i = (i + 1) % words.length;
+                    setTimeout(typeWriter, 500); 
+                    return;
+                }
+            } else {
+                span.textContent = word.substring(0, currentText.length + 1);
+                if (currentText === word) {
+                    span.setAttribute('data-deleting', 'true');
+                    setTimeout(typeWriter, 2000); 
+                    return;
+                }
+            }
+            
+            const speed = isDeleting ? 50 : 100;
+            setTimeout(typeWriter, speed);
+        }
+
+        // --- 订阅表单处理 ---
+        function toggleMobileMenu() {
+            const menu = document.getElementById('mobile-menu');
+            menu.classList.toggle('hidden');
+        }
+
+        window.addEventListener('scroll', () => {
+            const nav = document.getElementById('navbar');
+            if (window.scrollY > 20) {
+                nav.classList.add('shadow-lg', 'bg-slate-900/95');
+            } else {
+                nav.classList.remove('shadow-lg', 'bg-slate-900/95');
+            }
+        });
+
+        document.getElementById('load-more-btn').addEventListener('click', function() {
+            this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 加载中...';
+            setTimeout(() => {
+                showToast("没有更多文章了（演示结束）", "info");
+                this.innerHTML = '已加载全部';
+                this.classList.add('opacity-50', 'cursor-not-allowed');
+                this.disabled = true;
+            }, 1000);
+        });
+
+        document.addEventListener('DOMContentLoaded', () => {
+            renderArticles();
+            typeWriter();
+        });
+
+    </script>
+</body>
+</html>
