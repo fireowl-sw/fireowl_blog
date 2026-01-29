@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react'
-import { Link } from 'react-router-dom'
 
 export function Hero() {
   const words = ['智能边界', '感知极限', '决策逻辑', '安全基石']

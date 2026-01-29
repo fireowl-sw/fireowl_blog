@@ -1,5 +1,3 @@
-import { categoryNames } from './categories'
-
 export interface Article {
   id: string
   title: string

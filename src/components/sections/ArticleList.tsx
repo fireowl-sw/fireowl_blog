@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from 'react'
 import { Link } from 'react-router-dom'
-import { loadArticles, categoryNames, type Article } from '@/data/articles'
+import { loadArticles, type Article } from '@/data/articles'
 import { convertImageProxy } from '@/utils/imageProxy'
 
 // 预设的颜色方案（足够多的颜色供不同分类使用）
